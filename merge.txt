@@ -1,0 +1,222 @@
+4.	Write a program to implement Parallel Merge sort using OpenMP. Use existing algorithms and measure the performance of sequential and parallel algorithms. 
+
+#include <iostream>
+#include <vector>
+#include <omp.h>   // OpenMP library
+
+using namespace std;
+
+// ======================================================
+// 🔵 MERGE FUNCTION
+// ======================================================
+
+void merge(vector<int>& arr, int l, int m, int r) {
+
+    // Left subarray
+    vector<int> left(
+        arr.begin() + l,
+        arr.begin() + m + 1
+    );
+
+    // Right subarray
+    vector<int> right(
+        arr.begin() + m + 1,
+        arr.begin() + r + 1
+    );
+
+    int i = 0;
+    int j = 0;
+    int k = l;
+
+    // Compare and merge
+    while (i < left.size() && j < right.size()) {
+
+        if (left[i] <= right[j]) {
+
+            arr[k++] = left[i++];
+        }
+        else {
+
+            arr[k++] = right[j++];
+        }
+    }
+
+    // Copy remaining left elements
+    while (i < left.size()) {
+
+        arr[k++] = left[i++];
+    }
+
+    // Copy remaining right elements
+    while (j < right.size()) {
+
+        arr[k++] = right[j++];
+    }
+}
+
+// ======================================================
+// 🔴 SEQUENTIAL MERGE SORT
+// ======================================================
+
+void mergeSortSeq(vector<int>& arr, int l, int r) {
+
+    if (l < r) {
+
+        // Find middle index
+        int m = (l + r) / 2;
+
+        // Sort left half
+        mergeSortSeq(arr, l, m);
+
+        // Sort right half
+        mergeSortSeq(arr, m + 1, r);
+
+        // Merge both halves
+        merge(arr, l, m, r);
+    }
+}
+
+// ======================================================
+// 🔴 PARALLEL MERGE SORT
+// ======================================================
+
+void mergeSortParallel(
+    vector<int>& arr,
+    int l,
+    int r,
+    int depth
+) {
+
+    if (l < r) {
+
+        // Find middle index
+        int m = (l + r) / 2;
+
+        // If depth becomes 0
+        // use sequential merge sort
+        if (depth <= 0) {
+
+            mergeSortSeq(arr, l, m);
+
+            mergeSortSeq(arr, m + 1, r);
+        }
+        else {
+
+            // Parallel sections
+            #pragma omp parallel sections
+            {
+
+                // Left half sorted by one thread
+                #pragma omp section
+                mergeSortParallel(
+                    arr,
+                    l,
+                    m,
+                    depth - 1
+                );
+
+                // Right half sorted by another thread
+                #pragma omp section
+                mergeSortParallel(
+                    arr,
+                    m + 1,
+                    r,
+                    depth - 1
+                );
+            }
+        }
+
+        // Merge sorted halves
+        merge(arr, l, m, r);
+    }
+}
+
+// ======================================================
+// MAIN FUNCTION
+// ======================================================
+
+int main() {
+
+    // Array
+    vector<int> arr = {9, 5, 1, 4, 3};
+
+    cout << "Before Sorting:\n";
+
+    for (int x : arr) {
+
+        cout << x << " ";
+    }
+
+    // Call parallel merge sort
+    mergeSortParallel(
+        arr,
+        0,
+        arr.size() - 1,
+        4
+    );
+
+    cout << "\n\nAfter Parallel Merge Sort:\n";
+
+    for (int x : arr) {
+
+        cout << x << " ";
+    }
+
+    cout << endl;
+
+    return 0;
+}
+
+// openmp command= -fopenmp
+// g++ -fopenmp your_filename.cpp -o sort_program
+
+// Press Ctrl + Shift + P.
+// Type "Tasks: Configure Task" and press Enter.
+// Select your build task (usually named g++ build active file).
+
+
+// Open the MinGW Installation Manager (search for it in your Start menu).
+// Go to All Packages on the left.
+// Search for mingw32-pthreads-w32 in the right panel.
+// Right-click and select Mark for Installation for:mingw32-libpthreadgc (bin)mingw32-pthreads-w32 (dev)
+// Click Installation > Apply Changes in the top menu.
+
+// .\2_parallel_bubble_merge.exe
+
+.vscode->tasks.json
+// {
+// 	"version": "2.0.0",
+// 	"tasks": [
+// 		{
+// 			"type": "cppbuild",
+// 			"label": "C/C++: g++.exe build active file",
+// 			"command": "C:\\MinGW\\bin\\g++.exe",
+// 			"args": [
+// 				"-fdiagnostics-color=always",
+// 				"-g",
+// 				"${file}",
+// 				"-o",
+// 				"${fileDirname}\\${fileBasenameNoExtension}.exe",
+// 				"-fopenmp",
+// 				"-static"
+// 			],
+// 			"options": {
+// 				"cwd": "${fileDirname}"
+// 			},
+// 			"problemMatcher": [
+// 				"$gcc"
+// 			],
+// 			"group": {
+// 				"kind": "build",
+// 				"isDefault": true
+// 			},
+// 			"detail": "compiler: C:\\MinGW\\bin\\g++.exe"
+// 		}
+// 	]
+// }
+
+
+g++ bfs-dfs.cpp -fopenmp
+// g++ -fopenmp your_filename.cpp -o sort_program
+./a.exe
+./a.out

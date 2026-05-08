@@ -1,0 +1,166 @@
+5.	Implement Min, Max, Sum and Average operations using Parallel Reduction. 
+
+#include <iostream>
+#include <vector>
+#include <omp.h>   // OpenMP library
+
+using namespace std;
+
+// =====================================================
+// 🔵 FIND MINIMUM VALUE
+// =====================================================
+
+int minval(vector<int> &arr, int n)
+{
+    // Assume first element is minimum
+    int minval = arr[0];
+
+    // Parallel loop with reduction(min)
+    #pragma omp parallel for reduction(min:minval)
+    for(int i = 0; i < n; i++)
+    {
+        // Update minimum value
+        if(arr[i] < minval)
+        {
+            minval = arr[i];
+        }
+    }
+
+    return minval;
+}
+
+// =====================================================
+// 🔴 FIND MAXIMUM VALUE
+// =====================================================
+
+int maxval(vector<int> &arr, int n)
+{
+    // Assume first element is maximum
+    int maxval = arr[0];
+
+    // Parallel loop with reduction(max)
+    #pragma omp parallel for reduction(max:maxval)
+    for(int i = 0; i < n; i++)
+    {
+        // Update maximum value
+        if(arr[i] > maxval)
+        {
+            maxval = arr[i];
+        }
+    }
+
+    return maxval;
+}
+
+// =====================================================
+// 🔵 FIND SUM
+// =====================================================
+
+int sum(vector<int> &arr, int n)
+{
+    int sum = 0;
+
+    // Parallel reduction for addition
+    #pragma omp parallel for reduction(+:sum)
+    for(int i = 0; i < n; i++)
+    {
+        sum += arr[i];
+    }
+
+    return sum;
+}
+
+// =====================================================
+// 🔴 FIND AVERAGE
+// =====================================================
+
+double average(vector<int> &arr, int n)
+{
+    // Average = sum / number of elements
+    return (double)sum(arr, n) / n;
+}
+
+// =====================================================
+// 🔵 MAIN FUNCTION
+// =====================================================
+
+int main()
+{
+    // Array
+    vector<int> arr = {1,2,3,4,5};
+
+    // Number of elements
+    int n = 5;
+
+    // Function calls
+    cout << "Minimum value = "
+         << minval(arr, n) << endl;
+
+    cout << "Maximum value = "
+         << maxval(arr, n) << endl;
+
+    cout << "Sum = "
+         << sum(arr, n) << endl;
+
+    cout << "Average = "
+         << average(arr, n) << endl;
+
+    return 0;
+}
+
+// openmp command= -fopenmp
+// g++ -fopenmp your_filename.cpp -o sort_program
+
+// Press Ctrl + Shift + P.
+// Type "Tasks: Configure Task" and press Enter.
+// Select your build task (usually named g++ build active file).
+
+
+// Open the MinGW Installation Manager (search for it in your Start menu).
+// Go to All Packages on the left.
+// Search for mingw32-pthreads-w32 in the right panel.
+// Right-click and select Mark for Installation for:mingw32-libpthreadgc (bin)mingw32-pthreads-w32 (dev)
+// Click Installation > Apply Changes in the top menu.
+
+// .\2_parallel_bubble_merge.exe
+
+.vscode->tasks.json
+// {
+// 	"version": "2.0.0",
+// 	"tasks": [
+// 		{
+// 			"type": "cppbuild",
+// 			"label": "C/C++: g++.exe build active file",
+// 			"command": "C:\\MinGW\\bin\\g++.exe",
+// 			"args": [
+// 				"-fdiagnostics-color=always",
+// 				"-g",
+// 				"${file}",
+// 				"-o",
+// 				"${fileDirname}\\${fileBasenameNoExtension}.exe",
+// 				"-fopenmp",
+// 				"-static"
+// 			],
+// 			"options": {
+// 				"cwd": "${fileDirname}"
+// 			},
+// 			"problemMatcher": [
+// 				"$gcc"
+// 			],
+// 			"group": {
+// 				"kind": "build",
+// 				"isDefault": true
+// 			},
+// 			"detail": "compiler: C:\\MinGW\\bin\\g++.exe"
+// 		}
+// 	]
+// }
+
+
+
+g++ bfs-dfs.cpp -fopenmp
+// g++ -fopenmp your_filename.cpp -o sort_program
+
+./a.exe
+./a.out
+
